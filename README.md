@@ -1,17 +1,15 @@
-# sc-sugar
+# Simple-Check sugar
 
-TODO: A Clojure library designed to ... well, that part is up to you.
+A small sugar library for simple check. Essentially contains some binding
+functions which I felt necessary while the simple-check library was in lockdown.
 
-## (Subsections go here)
+## Usage
 
-TODO:
-* What does the library do?
-* Why did you write it (or didn't use an existing solution)?
-* Who should be using it, and for what reasons?
-* How should it be used (how to build it, how to configure it, how to run it and get started)?
-* Where can additional information be found? (typically doc/tutorial.md)
-From [Don't be a jerk: Write documentation](http://ferd.ca/don-t-be-a-jerk-write-documentation.html)
-by Frederic Trottier-Hebert.
+Add the following dependency to your `project.clj` file:
+
+```clj
+[com.hypirion/sc-sugar "not-released"]
+```
 
 ## License
 
