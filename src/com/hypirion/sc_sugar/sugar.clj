@@ -14,3 +14,65 @@
   [prev-vars expr]
   (-> (all-atoms expr)
       (set/intersection (set prev-vars))))
+
+(defn- all-binding-deps
+  "Given the ordered list of paired bindings, returns a map with the binding
+  dependencies."
+  [paired-bindings]
+  (loop [prev-vars #{}
+         deps {}
+         [[var expr] & rest-bindings :as binds] paired-bindings]
+    (if-not (seq binds)
+      deps
+      (recur (conj prev-vars var)
+             (assoc deps var (binding-deps prev-vars expr))
+             rest-bindings))))
+
+(defn- all-resolved?
+  "Return true if all dependencies have been resolved, false otherwise."
+  [dep-map var-sets]
+  ;; for all vars in a var set, the var's dependencies must be a part of the var
+  ;; set itself (i.e. must be a subset of the var set)
+  (let [set-resolved? (fn [var-set]
+                        (every? (fn [var]
+                                  (set/subset? (get dep-map var) var-set))))]
+    (every? set-resolved? var-sets)))
+
+(defmacro ^:private bind->>
+  ([bindings gen] [bindings gen])
+  ([b1 g1 b2 g2 & more]
+     `(bind->> [~b1 ~b2]
+               (gen/bind ~g1
+                         (fn [~b1] (gen/tuple (gen/return ~b1)
+                                             ~g2)))
+      ~@more)))
+
+(defmacro for-all-bind
+  "As for-all, but automatically initialises bindings between values. Threads
+  the bindings through bind, making each dependent of all the previous generator
+  results."
+  [bindings & body]
+  `(for-all (bind->> ~@bindings)
+     ~@body))
+
+(comment
+  ;; Will have to revisit this one later, is rather daunting.
+  (defn- create-binding-tree [dep-map expr-maps]
+    ;; First emit the expression without dependencies. Then emit the ones
+    ;; depending on others.
+    (let [init-keymap (into {} (for [[var expr] expr-maps]
+                                 [#{var} [var expr]]))]
+      (loop [keymap init-keymap]
+        (if (all-resolved? dep-map (keys keymap))
+          (vec (apply concat (vals keymap))) ; finalise expr here
+          (let []
+
+            )
+          )
+        )))
+
+  (defmacro for-all-bind
+    [bindings & body]
+    
+    ))
+
